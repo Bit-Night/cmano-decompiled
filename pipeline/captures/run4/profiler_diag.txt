@@ -1,0 +1,5 @@
+Profiler v2 loaded. out=C:\epic\run4_v2
+jit hook: inline detour on 00007ffc61a2a730 status=0
+inject: waiting for go.txt
+eh fallback: validated
+inject: ForceJIT.Run hr=0x00000000 ret=75811

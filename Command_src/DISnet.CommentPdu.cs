@@ -1,0 +1,282 @@
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Text;
+using System.Xml.Serialization;
+using OpenDis.Core;
+
+namespace DISnet;
+
+[Serializable]
+[XmlRoot]
+[XmlInclude(typeof(FixedDatum))]
+[XmlInclude(typeof(VariableDatum))]
+public class CommentPdu : SimulationManagementFamilyPdu, IEquatable<CommentPdu>
+{
+	private uint uint_1;
+
+	private uint uint_2;
+
+	private List<FixedDatum> list_0 = new List<FixedDatum>();
+
+	private List<VariableDatum> list_1 = new List<VariableDatum>();
+
+	[XmlElement(Type = typeof(uint), ElementName = "numberOfFixedDatumRecords")]
+	public uint NumberOfFixedDatumRecords
+	{
+		get
+		{
+			return uint_1;
+		}
+		set
+		{
+			uint_1 = value;
+		}
+	}
+
+	[XmlElement(Type = typeof(uint), ElementName = "numberOfVariableDatumRecords")]
+	public uint NumberOfVariableDatumRecords
+	{
+		get
+		{
+			return uint_2;
+		}
+		set
+		{
+			uint_2 = value;
+		}
+	}
+
+	[XmlElement(ElementName = "fixedDatumsList", Type = typeof(List<FixedDatum>))]
+	public List<FixedDatum> FixedDatums => list_0;
+
+	[XmlElement(ElementName = "variableDatumsList", Type = typeof(List<VariableDatum>))]
+	public List<VariableDatum> VariableDatums => list_1;
+
+	public CommentPdu()
+	{
+		base.PduType = 22;
+	}
+
+	public static bool operator !=(CommentPdu left, CommentPdu right)
+	{
+		return !(left == right);
+	}
+
+	public static bool operator ==(CommentPdu left, CommentPdu right)
+	{
+		if ((object)left == right)
+		{
+			return true;
+		}
+		int result;
+		if ((object)left == null)
+		{
+			result = 0;
+		}
+		else
+		{
+			if ((object)right != null)
+			{
+				return left.Equals(right);
+			}
+			result = 0;
+		}
+		return (byte)result != 0;
+	}
+
+	public override int GetMarshalledSize()
+	{
+		int num = 0;
+		num = base.GetMarshalledSize();
+		num += 4;
+		num += 4;
+		for (int i = 0; i < list_0.Count; i++)
+		{
+			FixedDatum fixedDatum = list_0[i];
+			num += fixedDatum.GetMarshalledSize();
+		}
+		for (int j = 0; j < list_1.Count; j++)
+		{
+			VariableDatum variableDatum = list_1[j];
+			num += variableDatum.GetMarshalledSize();
+		}
+		return num;
+	}
+
+	public override void MarshalAutoLengthSet(DataOutputStream dos)
+	{
+		base.Length = (ushort)GetMarshalledSize();
+		Marshal(dos);
+	}
+
+	public override void Marshal(DataOutputStream dos)
+	{
+		base.Marshal(dos);
+		if (dos == null)
+		{
+			return;
+		}
+		try
+		{
+			dos.WriteUnsignedInt((uint)list_0.Count);
+			dos.WriteUnsignedInt((uint)list_1.Count);
+			for (int i = 0; i < list_0.Count; i++)
+			{
+				list_0[i].Marshal(dos);
+			}
+			for (int j = 0; j < list_1.Count; j++)
+			{
+				list_1[j].Marshal(dos);
+			}
+		}
+		catch (Exception e)
+		{
+			OnException(e);
+		}
+	}
+
+	public override void Unmarshal(DataInputStream dis)
+	{
+		base.Unmarshal(dis);
+		if (dis == null)
+		{
+			return;
+		}
+		try
+		{
+			uint_1 = dis.ReadUnsignedInt();
+			uint_2 = dis.ReadUnsignedInt();
+			for (int i = 0; i < NumberOfFixedDatumRecords; i++)
+			{
+				FixedDatum fixedDatum = new FixedDatum();
+				fixedDatum.Unmarshal(dis);
+				list_0.Add(fixedDatum);
+			}
+			for (int j = 0; j < NumberOfVariableDatumRecords; j++)
+			{
+				VariableDatum variableDatum = new VariableDatum();
+				variableDatum.Unmarshal(dis);
+				list_1.Add(variableDatum);
+			}
+		}
+		catch (Exception e)
+		{
+			OnException(e);
+		}
+	}
+
+	public override void Reflection(StringBuilder sb)
+	{
+		sb.AppendLine("<CommentPdu>");
+		base.Reflection(sb);
+		try
+		{
+			sb.AppendLine("<fixedDatums type=\"uint\">" + list_0.Count.ToString(CultureInfo.InvariantCulture) + "</fixedDatums>");
+			sb.AppendLine("<variableDatums type=\"uint\">" + list_1.Count.ToString(CultureInfo.InvariantCulture) + "</variableDatums>");
+			for (int i = 0; i < list_0.Count; i++)
+			{
+				sb.AppendLine("<fixedDatums" + i.ToString(CultureInfo.InvariantCulture) + " type=\"FixedDatum\">");
+				list_0[i].Reflection(sb);
+				sb.AppendLine("</fixedDatums" + i.ToString(CultureInfo.InvariantCulture) + ">");
+			}
+			for (int j = 0; j < list_1.Count; j++)
+			{
+				sb.AppendLine("<variableDatums" + j.ToString(CultureInfo.InvariantCulture) + " type=\"VariableDatum\">");
+				list_1[j].Reflection(sb);
+				sb.AppendLine("</variableDatums" + j.ToString(CultureInfo.InvariantCulture) + ">");
+			}
+			sb.AppendLine("</CommentPdu>");
+		}
+		catch (Exception e)
+		{
+			OnException(e);
+		}
+	}
+
+	public override bool Equals(object obj)
+	{
+		return this == obj as CommentPdu;
+	}
+
+	public bool Equals(CommentPdu obj)
+	{
+		bool flag = true;
+		if (!(obj.GetType() != GetType()))
+		{
+			flag = Equals((SimulationManagementFamilyPdu)obj);
+			if (uint_1 != obj.uint_1)
+			{
+				flag = false;
+			}
+			if (uint_2 != obj.uint_2)
+			{
+				flag = false;
+			}
+			if (list_0.Count != obj.list_0.Count)
+			{
+				flag = false;
+			}
+			if (flag)
+			{
+				for (int i = 0; i < list_0.Count; i++)
+				{
+					if (!list_0[i].Equals(obj.list_0[i]))
+					{
+						flag = false;
+					}
+				}
+			}
+			if (list_1.Count != obj.list_1.Count)
+			{
+				flag = false;
+			}
+			if (flag)
+			{
+				for (int j = 0; j < list_1.Count; j++)
+				{
+					if (!list_1[j].Equals(obj.list_1[j]))
+					{
+						flag = false;
+					}
+				}
+			}
+			return flag;
+		}
+		return false;
+	}
+
+	private static int smethod_3(int int_0)
+	{
+		int_0 <<= 5 + int_0;
+		return int_0;
+	}
+
+	public override int GetHashCode()
+	{
+		int num = 0;
+		num = smethod_3(0) ^ base.GetHashCode();
+		num = smethod_3(num) ^ uint_1.GetHashCode();
+		num = smethod_3(num) ^ uint_2.GetHashCode();
+		if (list_0.Count > 0)
+		{
+			for (int i = 0; i < list_0.Count; i++)
+			{
+				num = smethod_3(num) ^ list_0[i].GetHashCode();
+			}
+		}
+		if (list_1.Count > 0)
+		{
+			for (int j = 0; j < list_1.Count; j++)
+			{
+				num = smethod_3(num) ^ list_1[j].GetHashCode();
+			}
+		}
+		return num;
+	}
+
+	static CommentPdu()
+	{
+		Class72.smethod_20();
+	}
+}

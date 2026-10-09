@@ -1,0 +1,19 @@
+namespace Imazen.WebP.Extern;
+
+public enum WEBP_CSP_MODE
+{
+	MODE_RGB,
+	MODE_RGBA,
+	MODE_BGR,
+	MODE_BGRA,
+	MODE_ARGB,
+	MODE_RGBA_4444,
+	MODE_RGB_565,
+	MODE_rgbA,
+	MODE_bgrA,
+	MODE_Argb,
+	MODE_rgbA_4444,
+	MODE_YUV,
+	MODE_YUVA,
+	MODE_LAST
+}

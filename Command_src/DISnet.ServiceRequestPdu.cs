@@ -1,0 +1,311 @@
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Text;
+using System.Xml.Serialization;
+using OpenDis.Core;
+
+namespace DISnet;
+
+[Serializable]
+[XmlRoot]
+[XmlInclude(typeof(EntityID))]
+[XmlInclude(typeof(SupplyQuantity))]
+public class ServiceRequestPdu : LogisticsFamilyPdu, IEquatable<ServiceRequestPdu>
+{
+	private EntityID entityID_0 = new EntityID();
+
+	private EntityID entityID_1 = new EntityID();
+
+	private byte byte_6;
+
+	private byte byte_7;
+
+	private short short_0;
+
+	private List<SupplyQuantity> list_0 = new List<SupplyQuantity>();
+
+	[XmlElement(Type = typeof(EntityID), ElementName = "requestingEntityID")]
+	public EntityID RequestingEntityID
+	{
+		get
+		{
+			return entityID_0;
+		}
+		set
+		{
+			entityID_0 = value;
+		}
+	}
+
+	[XmlElement(Type = typeof(EntityID), ElementName = "servicingEntityID")]
+	public EntityID ServicingEntityID
+	{
+		get
+		{
+			return entityID_1;
+		}
+		set
+		{
+			entityID_1 = value;
+		}
+	}
+
+	[XmlElement(Type = typeof(byte), ElementName = "serviceTypeRequested")]
+	public byte ServiceTypeRequested
+	{
+		get
+		{
+			return byte_6;
+		}
+		set
+		{
+			byte_6 = value;
+		}
+	}
+
+	[XmlElement(Type = typeof(byte), ElementName = "numberOfSupplyTypes")]
+	public byte NumberOfSupplyTypes
+	{
+		get
+		{
+			return byte_7;
+		}
+		set
+		{
+			byte_7 = value;
+		}
+	}
+
+	[XmlElement(Type = typeof(short), ElementName = "serviceRequestPadding")]
+	public short ServiceRequestPadding
+	{
+		get
+		{
+			return short_0;
+		}
+		set
+		{
+			short_0 = value;
+		}
+	}
+
+	[XmlElement(ElementName = "suppliesList", Type = typeof(List<SupplyQuantity>))]
+	public List<SupplyQuantity> Supplies => list_0;
+
+	public ServiceRequestPdu()
+	{
+		base.PduType = 5;
+	}
+
+	public static bool operator !=(ServiceRequestPdu left, ServiceRequestPdu right)
+	{
+		return !(left == right);
+	}
+
+	public static bool operator ==(ServiceRequestPdu left, ServiceRequestPdu right)
+	{
+		if ((object)left == right)
+		{
+			return true;
+		}
+		int result;
+		if ((object)left == null)
+		{
+			result = 0;
+		}
+		else
+		{
+			if ((object)right != null)
+			{
+				return left.Equals(right);
+			}
+			result = 0;
+		}
+		return (byte)result != 0;
+	}
+
+	public override int GetMarshalledSize()
+	{
+		int num = 0;
+		num = base.GetMarshalledSize();
+		num += entityID_0.GetMarshalledSize();
+		num += entityID_1.GetMarshalledSize();
+		num++;
+		num++;
+		num += 2;
+		for (int i = 0; i < list_0.Count; i++)
+		{
+			SupplyQuantity supplyQuantity = list_0[i];
+			num += supplyQuantity.GetMarshalledSize();
+		}
+		return num;
+	}
+
+	public override void MarshalAutoLengthSet(DataOutputStream dos)
+	{
+		base.Length = (ushort)GetMarshalledSize();
+		Marshal(dos);
+	}
+
+	public override void Marshal(DataOutputStream dos)
+	{
+		base.Marshal(dos);
+		if (dos == null)
+		{
+			return;
+		}
+		try
+		{
+			entityID_0.Marshal(dos);
+			entityID_1.Marshal(dos);
+			dos.WriteUnsignedByte(byte_6);
+			dos.WriteUnsignedByte((byte)list_0.Count);
+			dos.WriteShort(short_0);
+			for (int i = 0; i < list_0.Count; i++)
+			{
+				list_0[i].Marshal(dos);
+			}
+		}
+		catch (Exception e)
+		{
+			OnException(e);
+		}
+	}
+
+	public override void Unmarshal(DataInputStream dis)
+	{
+		base.Unmarshal(dis);
+		if (dis == null)
+		{
+			return;
+		}
+		try
+		{
+			entityID_0.Unmarshal(dis);
+			entityID_1.Unmarshal(dis);
+			byte_6 = dis.ReadUnsignedByte();
+			byte_7 = dis.ReadUnsignedByte();
+			short_0 = dis.ReadShort();
+			for (int i = 0; i < NumberOfSupplyTypes; i++)
+			{
+				SupplyQuantity supplyQuantity = new SupplyQuantity();
+				supplyQuantity.Unmarshal(dis);
+				list_0.Add(supplyQuantity);
+			}
+		}
+		catch (Exception e)
+		{
+			OnException(e);
+		}
+	}
+
+	public override void Reflection(StringBuilder sb)
+	{
+		sb.AppendLine("<ServiceRequestPdu>");
+		base.Reflection(sb);
+		try
+		{
+			sb.AppendLine("<requestingEntityID>");
+			entityID_0.Reflection(sb);
+			sb.AppendLine("</requestingEntityID>");
+			sb.AppendLine("<servicingEntityID>");
+			entityID_1.Reflection(sb);
+			sb.AppendLine("</servicingEntityID>");
+			sb.AppendLine("<serviceTypeRequested type=\"byte\">" + byte_6.ToString(CultureInfo.InvariantCulture) + "</serviceTypeRequested>");
+			sb.AppendLine("<supplies type=\"byte\">" + list_0.Count.ToString(CultureInfo.InvariantCulture) + "</supplies>");
+			sb.AppendLine("<serviceRequestPadding type=\"short\">" + short_0.ToString(CultureInfo.InvariantCulture) + "</serviceRequestPadding>");
+			for (int i = 0; i < list_0.Count; i++)
+			{
+				sb.AppendLine("<supplies" + i.ToString(CultureInfo.InvariantCulture) + " type=\"SupplyQuantity\">");
+				list_0[i].Reflection(sb);
+				sb.AppendLine("</supplies" + i.ToString(CultureInfo.InvariantCulture) + ">");
+			}
+			sb.AppendLine("</ServiceRequestPdu>");
+		}
+		catch (Exception e)
+		{
+			OnException(e);
+		}
+	}
+
+	public override bool Equals(object obj)
+	{
+		return this == obj as ServiceRequestPdu;
+	}
+
+	public bool Equals(ServiceRequestPdu obj)
+	{
+		bool flag = true;
+		if (obj.GetType() != GetType())
+		{
+			return false;
+		}
+		flag = Equals((LogisticsFamilyPdu)obj);
+		if (!entityID_0.Equals(obj.entityID_0))
+		{
+			flag = false;
+		}
+		if (!entityID_1.Equals(obj.entityID_1))
+		{
+			flag = false;
+		}
+		if (byte_6 != obj.byte_6)
+		{
+			flag = false;
+		}
+		if (byte_7 != obj.byte_7)
+		{
+			flag = false;
+		}
+		if (short_0 != obj.short_0)
+		{
+			flag = false;
+		}
+		if (list_0.Count != obj.list_0.Count)
+		{
+			flag = false;
+		}
+		if (flag)
+		{
+			for (int i = 0; i < list_0.Count; i++)
+			{
+				if (!list_0[i].Equals(obj.list_0[i]))
+				{
+					flag = false;
+				}
+			}
+		}
+		return flag;
+	}
+
+	private static int smethod_3(int int_0)
+	{
+		int_0 <<= 5 + int_0;
+		return int_0;
+	}
+
+	public override int GetHashCode()
+	{
+		int num = 0;
+		num = smethod_3(0) ^ base.GetHashCode();
+		num = smethod_3(num) ^ entityID_0.GetHashCode();
+		num = smethod_3(num) ^ entityID_1.GetHashCode();
+		num = smethod_3(num) ^ byte_6.GetHashCode();
+		num = smethod_3(num) ^ byte_7.GetHashCode();
+		num = smethod_3(num) ^ short_0.GetHashCode();
+		if (list_0.Count > 0)
+		{
+			for (int i = 0; i < list_0.Count; i++)
+			{
+				num = smethod_3(num) ^ list_0[i].GetHashCode();
+			}
+		}
+		return num;
+	}
+
+	static ServiceRequestPdu()
+	{
+		Class72.smethod_20();
+	}
+}
