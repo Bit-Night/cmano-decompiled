@@ -1,3 +1,0 @@
-Profiler v2 loaded. out=C:\epic\run2_v2
-jit hook: installed (orig=00007ffc4a14a730)
-inject: waiting for go.txt
